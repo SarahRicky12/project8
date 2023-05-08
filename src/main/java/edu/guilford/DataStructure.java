@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,7 +27,7 @@ public class DataStructure
 
         Scanner scanFile = null;
         Path dataLocation = null;
-        String [][] values = null;
+        TreeSet<String> values = null;
         String fileName = null;
 
         System.out.println("Please enter the name of the file you would like to read from: ");
@@ -53,7 +54,7 @@ public class DataStructure
     }
 
     //has to change this from double to string because we are reading words, not numbers 
-    public static String[][] readData(Scanner scan) {
+    public static TreeSet readData(Scanner scan) {
 
         //decided to create a stack and a tree set to store the data
         //because the stack will allow us to remove the punctuation 
@@ -77,12 +78,17 @@ public class DataStructure
         }
 
         //use the new class (Occurances) to store the number of occurances of each word
+        //while stack is not empty, have it pop off the words off stack and put it in organizedData. Count 
+        //the number of occurances of each word and add it to the tree set
+        //for loop for the size of the stack, if the word is equal to the word at the index, remove the word at the index
+        //and add one to the count. Then create a new Occurances object and add it to the tree set
         while (!stack.isEmpty()) {
             String word = stack.pop();
             int count = 1;
             for (int i = 1; i < stack.size(); i++) {
                 if (word.equals(stack.get(i))) {
-                    count++;
+                    stack.remove(i);
+                    count++;   
                 }
             }
             Occurances o = new Occurances(word, count);
@@ -101,9 +107,9 @@ public class DataStructure
         // }
 
         //add all elements from the file to the tree set
-        while (!stack.isEmpty()) {
-            organizedData.add(stack.pop());
-        }
+        // while (!stack.isEmpty()) {
+        //     organizedData.add(stack.pop());
+        // }
 
         for (String s : organizedData) {
             System.out.println(s);
@@ -124,29 +130,27 @@ public class DataStructure
 
 
         //try reading the data from the file, catching any excpetions 
-        try {
-            while (scan.hasNext()) {
-                organizedData.add(scan.next());
-            }
-        } catch (InputMismatchException ex) {
-            System.out.println("Wrong type of data.");
-        } catch (NoSuchElementException ex) {
-            System.out.println("Ran out of words.");
-        } 
-        return organizedData.toArray(new String[organizedData.size()][]);
+        // try {
+        //     while (scan.hasNext()) {
+        //         organizedData.add(scan.next());
+        //     }
+        // } catch (InputMismatchException ex) {
+        //     System.out.println("Wrong type of data.");
+        // } catch (NoSuchElementException ex) {
+        //     System.out.println("Ran out of words.");
+        // } 
+        return organizedData;
     }
 
 
     //write the strings to a file 
-    public static void writeData(String [][] values, String fileName) throws IOException, URISyntaxException {
+    public static void writeData(TreeSet<String> values, String fileName) throws IOException, URISyntaxException {
         Path locationPath = Paths.get(DataStructure.class.getResource("/edu/guilford/").toURI());
         FileWriter outputFile = new FileWriter(locationPath.toString() + "/" + fileName);
         BufferedWriter bufferWrite = new BufferedWriter(outputFile);
         //write the data to the file
-        for (int i = 0; i < values.length; i++) {
-            for (int j = 0; j < values[i].length; j++) {
-                bufferWrite.write(values[i][j] + " ");
-            }
+        for (String s : values) {
+            bufferWrite.write(s);
             bufferWrite.newLine();
         }
         bufferWrite.close();
